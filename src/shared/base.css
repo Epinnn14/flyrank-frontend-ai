@@ -28,6 +28,26 @@
     --focus: #93c5fd;
   }
 }
+/* The shader hero is always dark (it's an image, not a themed surface), so it has its own fixed palette. */
+:root {
+  --hero-ink: #f4f7fb;
+  --hero-ink-soft: #dde6f2;
+  --hero-ink-muted: #b9c4d6;
+  --hero-eyebrow: #9ef3dc;
+  --hero-link: #c9f5ec;
+  --hero-night: #090e1c;
+  --hero-night-2: #0d1a2e;
+  --hero-night-3: #05070f;
+  --hero-mint-a: rgba(158, 250, 220, 0.55);
+  --hero-teal-a: rgba(23, 179, 163, 0.65);
+  --hero-violet-a: rgba(115, 84, 242, 0.35);
+  --hero-shadow: rgba(3, 6, 14, 0.55);
+  --hero-glass: rgba(9, 14, 28, 0.35);
+  --hero-line: rgba(244, 247, 251, 0.45);
+  --hero-cta: #2dd4bf;
+  --hero-cta-ink: #062925;
+  --hero-focus: #93c5fd;
+}
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; }
 body { background: var(--bg); color: var(--text); font: 16px/1.55 var(--font); }
