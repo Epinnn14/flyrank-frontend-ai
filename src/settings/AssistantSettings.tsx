@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { ChangeEvent, FormEvent, MouseEvent } from "react";
+import type { ChangeEvent, FocusEvent, FormEvent, MouseEvent } from "react";
 import "./AssistantSettings.css";
 import {
   DAYS,
@@ -99,8 +99,15 @@ export function AssistantSettings({ saveDelayMs = 400 }: AssistantSettingsProps)
     if (field && (always || touched[field])) setFieldError(field, validateField(field, next));
   }
 
-  function handleBlur(field: FieldName) {
+  /**
+   * Validate on blur, EXCEPT when focus is moving to Save or Reset. Showing the error there would insert text above
+   * the buttons between mousedown and mouseup, pushing Save down so the click lands on nothing (found in a real
+   * browser, not in jsdom). Submit validates everything anyway, and Reset clears errors.
+   */
+  function handleBlur(field: FieldName, e?: FocusEvent<HTMLElement>) {
     setTouched((prev) => ({ ...prev, [field]: true }));
+    const next = e?.relatedTarget as HTMLElement | null | undefined;
+    if (next?.closest?.("[data-form-action]")) return;
     setFieldError(field, validateField(field, values));
   }
 
@@ -254,7 +261,7 @@ export function AssistantSettings({ saveDelayMs = 400 }: AssistantSettingsProps)
             autoComplete="off"
             value={values.displayName}
             onChange={(e) => update({ displayName: e.target.value }, "displayName")}
-            onBlur={() => handleBlur("displayName")}
+            onBlur={(e) => handleBlur("displayName", e)}
             {...a11y("displayName", "display-name-hint")}
           />
         </div>
@@ -275,7 +282,7 @@ export function AssistantSettings({ saveDelayMs = 400 }: AssistantSettingsProps)
                   value={m.value}
                   checked={values.model === m.value}
                   onChange={() => update({ model: m.value }, "model")}
-                  onBlur={() => handleBlur("model")}
+                  onBlur={(e) => handleBlur("model", e)}
                   aria-describedby={`model-${m.value}-hint`}
                 />
                 <label htmlFor={`model-${m.value}`}>
@@ -318,7 +325,7 @@ export function AssistantSettings({ saveDelayMs = 400 }: AssistantSettingsProps)
               autoComplete="off"
               value={values.temperature}
               onChange={handleTemperatureText}
-              onBlur={() => handleBlur("temperature")}
+              onBlur={(e) => handleBlur("temperature", e)}
               {...a11y("temperature", "temperature-hint")}
             />
           </div>
@@ -339,7 +346,7 @@ export function AssistantSettings({ saveDelayMs = 400 }: AssistantSettingsProps)
             autoComplete="off"
             value={values.maxTokens}
             onChange={(e) => update({ maxTokens: e.target.value }, "maxTokens")}
-            onBlur={() => handleBlur("maxTokens")}
+            onBlur={(e) => handleBlur("maxTokens", e)}
             {...a11y("maxTokens", "max-tokens-hint")}
           />
         </div>
@@ -359,7 +366,7 @@ export function AssistantSettings({ saveDelayMs = 400 }: AssistantSettingsProps)
             value={values.systemPrompt}
             // The length limit is shown live (not only after blur) so a long paste is flagged immediately.
             onChange={(e) => update({ systemPrompt: e.target.value }, "systemPrompt", true)}
-            onBlur={() => handleBlur("systemPrompt")}
+            onBlur={(e) => handleBlur("systemPrompt", e)}
             {...a11y("systemPrompt", "system-prompt-hint", "system-prompt-count")}
           />
           <p id="system-prompt-count" className={`counter${promptLeft < 0 ? " over" : ""}`}>
@@ -397,7 +404,7 @@ export function AssistantSettings({ saveDelayMs = 400 }: AssistantSettingsProps)
               onChange={(e) =>
                 update({ digestDay: isDigestDay(e.target.value) ? e.target.value : "" }, "digestDay")
               }
-              onBlur={() => handleBlur("digestDay")}
+              onBlur={(e) => handleBlur("digestDay", e)}
               {...a11y("digestDay")}
             >
               <option value="">Choose a day</option>
@@ -413,13 +420,14 @@ export function AssistantSettings({ saveDelayMs = 400 }: AssistantSettingsProps)
         <div className="actions">
           <button
             type="submit"
+            data-form-action
             className="button primary"
             aria-disabled={saveBlocked}
             onClick={handleSaveClick}
           >
             {saving ? "Saving…" : "Save"}
           </button>
-          <button type="button" className="button secondary" onClick={handleReset} aria-disabled={saving}>
+          <button type="button" data-form-action className="button secondary" onClick={handleReset} aria-disabled={saving}>
             Reset
           </button>
         </div>

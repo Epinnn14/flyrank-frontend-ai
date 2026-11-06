@@ -452,3 +452,19 @@ describe("save button is disabled until the form differs from the last saved val
     expect(f.save()).toHaveAttribute("aria-disabled", "true");
   });
 });
+
+describe("blur → Save (the swallowed-click bug)", () => {
+  it("doesn't show a blur error when focus moves to Save, so the click isn't lost; submit shows it", async () => {
+    const { user, temp: getTemp } = setup();
+    const temp = getTemp();
+    await user.clear(temp);
+    await user.type(temp, "abc");
+    const save = screen.getByRole("button", { name: /save/i });
+    // Blur straight onto Save: no field error yet (no layout shift under the pointer)…
+    temp.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: save }));
+    expect(screen.queryByText(/must be a number/i)).toBeNull();
+    // …and the click submits, showing the summary.
+    await user.click(save);
+    expect(await screen.findByRole("alert")).toHaveTextContent(/There is a problem/);
+  });
+});
