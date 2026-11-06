@@ -1,0 +1,309 @@
+/* Assistant settings form. Colours come only from tokens in src/shared/base.css. */
+
+.assistant-settings {
+  max-width: 640px;
+}
+
+.assistant-settings h1 {
+  margin: 0 0 4px;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.assistant-settings > .muted {
+  margin: 0 0 20px;
+}
+
+/* Error summary */
+.error-summary {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  border: 3px solid var(--danger);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.error-summary h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+.error-summary ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.error-summary a {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* Form layout */
+.settings-form {
+  display: grid;
+  gap: 24px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.field > label,
+.radio-group legend {
+  font-weight: 600;
+}
+
+.field.has-error {
+  padding-left: 12px;
+  border-left: 4px solid var(--danger);
+}
+
+.field.nested {
+  margin-top: -12px;
+  margin-left: 30px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.optional {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.field-error {
+  margin: 0;
+  color: var(--danger);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Controls */
+.settings-form input[type="text"],
+.settings-form textarea,
+.settings-form select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+.settings-form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.settings-form select {
+  max-width: 240px;
+}
+
+.settings-form [aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.settings-form .number-input {
+  max-width: 120px;
+}
+
+.counter {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.counter.over {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* Radio group */
+.radio-group {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.radio-group.has-error {
+  padding-left: 12px;
+}
+
+.radio-group legend {
+  padding: 0;
+  margin-bottom: 6px;
+}
+
+.radio-options {
+  display: grid;
+  gap: 8px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+}
+
+.radio-option:has(input:checked) {
+  border-color: var(--accent);
+}
+
+.radio-option label {
+  display: grid;
+  flex: 1;
+  cursor: pointer;
+}
+
+.radio-label {
+  font-weight: 600;
+}
+
+.radio-option input,
+.checkbox-row input {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.checkbox-row label {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.checkbox-row + .hint {
+  padding-left: 30px;
+}
+
+/* Temperature: slider + text box side by side, wrapping on narrow screens */
+.temperature-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.temperature-row input[type="range"] {
+  flex: 1 1 160px;
+  min-width: 0;
+  min-height: 44px;
+  accent-color: var(--accent);
+}
+
+.temperature-row .number-input {
+  flex: 0 0 96px;
+}
+
+/* Buttons */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.button {
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.button.primary {
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.button.secondary {
+  border: 2px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.button:focus-visible,
+.settings-form input:focus-visible,
+.settings-form textarea:focus-visible,
+.settings-form select:focus-visible,
+.error-summary:focus-visible,
+.error-summary a:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.error-summary:focus {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Status: the live region is always rendered (never display:none) so announcements are reliable. */
+.status {
+  margin: 0;
+  font-weight: 600;
+  animation: status-in 200ms ease-out;
+}
+
+.status.success {
+  color: var(--success);
+}
+
+.status.error {
+  color: var(--danger);
+}
+
+@keyframes status-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Keep the colour and text, drop the movement. */
+  .status {
+    animation: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .assistant-settings h1 {
+    font-size: 24px;
+  }
+
+  .settings-form {
+    padding: 16px;
+  }
+
+  .field.nested {
+    margin-left: 0;
+  }
+}
