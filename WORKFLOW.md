@@ -15,12 +15,9 @@ own git worktree, so no context carried over. The exact prompts are in
 
 ## Correctness
 
-Round 1 built *a* settings form: a generic profile with name, email, website, bio and time zone.
-
-- It is a plausible guess, but it isn't the settings an AI chat app needs: no model, no temperature, no response
-  length, no system prompt.
-- Nothing persists. `fakeSave` waits 600 ms, and a reload loses everything.
-- There is no reset, and no "unchanged" state.
+Round 1 built *a* settings form: a generic profile (name, email, website, bio, time zone). It's a plausible guess, but
+it has none of the settings an AI chat app needs, nothing persists (`fakeSave` waits 600 ms), and there's no reset. It
+also never considered storage failures or corrupt saved data, and it rejects `http://localhost:3000`.
 
 Round 2 implements every rule in the spec. In both the tests and the browser:
 
@@ -40,11 +37,15 @@ the sequence when the bio is too long:
 3. The error pushes the Save button down 26 px (777 → 803).
 4. Mouseup lands on empty space, so no submit happens.
 
-The second click worked. I found it with Playwright, measuring the button's bounding box before and after. jsdom
-can't catch it, because it has no layout.
+I found it with Playwright by measuring the button's position. jsdom can't catch it: it has no layout.
 
-Round 2 avoids it by validating long text as you type. On submit it shows an error summary at the top and focuses it.
-I ran the same browser check on round 2, and the submit fired on the first click.
+**Round 2 had the same bug, and I almost missed it.** My first check (display name) passed. The README screenshot
+run then typed "abc" into temperature and clicked Save once: no summary, and focus stayed on the button. Validating on
+blur is the cause in both rounds.
+
+The fix is on `main` in `fix(settings)`: skip blur validation when focus moves to Save or Reset (submit validates
+everything anyway), with a regression test. I re-checked it in the browser on temperature, tokens and name. The
+`drill/round-2-precise` branch is left exactly as generated.
 
 ## Accessibility
 
@@ -57,19 +58,11 @@ I ran the same browser check on round 2, and the submit fired on the first click
 | Save while busy | not handled | `aria-disabled` keeps the button focusable |
 | Duplicate messages | bio shows a counter AND an error | one message per field |
 
-## Edge cases round 1 never considered
-
-Storage failures, invalid saved data, and `http://localhost:3000` (rejected: its check wants a dot in the hostname).
-
 ## Review effort and total time
 
-Round 1 was 4× faster to generate, but reviewing it meant finding a hidden bug and listing five spec gaps. Each gap
-would need another prompt and another review.
-
-Round 2 took longer: the prompt took real thought to write, and generation took 4× longer. My review was a read-through plus three
-browser checks: desktop, 360 px and dark mode. I found nothing to fix.
-
-The cost: 1,694 lines and 80 tests to review for one form.
+Round 1 was 4× faster to generate, but its review found a hidden bug plus five spec gaps, each needing another prompt
+and another review. Round 2's prompt took real thought, and generation took 4× longer; its review found one bug. The
+cost: 1,694 lines and 80 tests to review for one form.
 
 **Round 2 felt slower, but it was faster end-to-end:** one pass instead of a fix-and-re-prompt loop.
 

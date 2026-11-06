@@ -30,10 +30,13 @@ This file is read by the AI assistant (Claude) before every task. Keep it short,
 
 ## Rules learned from the FE-04 drill
 
-1. **Validation must never move the submit button between mousedown and mouseup.** Long text validates on change, not
-   on blur. On submit, errors go into a focused summary at the top. Every form gets one real-browser check (Playwright):
-   "edit the last field, then click Save **once**". This is because round 1's first click was swallowed by a
-   blur-triggered error that pushed the button down by 26 px, and jsdom tests can't see that.
+1. **Validation must never move the submit button between mousedown and mouseup.**
+   - Long text validates on change.
+   - Blur validation is skipped when focus moves to a `[data-form-action]` button (Save/Reset). Submit validates
+     everything and focuses the error summary.
+   - Every form gets one real-browser check (Playwright): "edit each field, then click Save **once**".
+   - This is because both drill rounds lost the first click to a blur-triggered error that pushed Save down, and jsdom
+     tests can't see that.
 2. **Number-like fields use `type="text"` with `inputMode="decimal"` or `"numeric"`, and parse in `validate.ts`.**
    `type="number"` turns "abc" into an empty string, so the error can't be reported. Rules live in a pure `validate.ts`
    with its own unit tests.
