@@ -1,0 +1,32 @@
+.bdemo { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.bdemo h1 { margin: 0 0 4px; }
+.bdemo h2 { font-size: 17px; margin: 0 0 12px; }
+.bdemo__outcome { min-inline-size: 0; display: flex; flex-wrap: wrap; gap: 8px 18px; border: 1px solid var(--border); }
+.bdemo__outcome legend { font-weight: 600; padding: 0 4px; }
+.bdemo__outcome label { display: inline-flex; gap: 6px; align-items: center; }
+.bdemo__messages { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+.bdemo__messages li:not(.muted) {
+  justify-self: end;
+  max-width: 85%;
+  padding: 8px 12px;
+  border-radius: 14px 14px 4px 14px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.bdemo__composer { display: flex; gap: 10px; align-items: flex-end; }
+.bdemo__composer textarea {
+  flex: 1;
+  min-width: 0;
+  resize: vertical;
+  font: inherit;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+.bdemo__product { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.bdemo__product p { margin: 0; }
+.bdemo__notes { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
