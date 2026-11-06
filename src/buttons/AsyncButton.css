@@ -1,0 +1,119 @@
+/*
+ * Motion language (shared by every AsyncButton):
+ *   --t-press   80 ms  ease-out       press must feel instant; anything slower reads as lag
+ *   --t-hover  140 ms  ease-out       quick enough to follow the cursor, slow enough not to flicker
+ *   --t-swap   220 ms  emphasized     label/icon swap: decelerate in, so the new state "lands"
+ *   --t-pop    320 ms  overshoot      success check pops slightly past 1 then settles: a small reward
+ *   --t-shake  360 ms  ease-in-out    error: one short horizontal shake, then still (the colour stays)
+ * Only transform and opacity animate. Colours change through two tint layers that fade in (opacity).
+ */
+.abtn {
+  --t-press: 80ms;
+  --t-hover: 140ms;
+  --t-swap: 220ms;
+  --t-pop: 320ms;
+  --t-shake: 360ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emph: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: none;
+  font: 600 15px/1 var(--font);
+  color: var(--accent-contrast);
+  cursor: pointer;
+  border-radius: 999px;
+  -webkit-tap-highlight-color: transparent;
+}
+.abtn:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+.abtn__face {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 44px;                   /* touch target */
+  padding: 0 22px;
+  border-radius: inherit;
+  background: var(--accent);
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform var(--t-hover) var(--ease-out);
+  will-change: transform;
+}
+.abtn:hover:not([aria-disabled]) .abtn__face { transform: translateY(-2px); }
+.abtn:active:not([aria-disabled]) .abtn__face { transform: translateY(0) scale(0.96); transition-duration: var(--t-press); }
+
+/* State colours: tint layers over the accent background, faded with opacity. */
+.abtn__tint {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity var(--t-swap) var(--ease-out);
+}
+.abtn__tint--success { background: var(--success); }
+.abtn__tint--error { background: var(--danger); }
+.abtn[data-state="success"] .abtn__tint--success,
+.abtn[data-state="error"] .abtn__tint--error { opacity: 1; }
+
+/* The sizer holds the widest label so the button never changes width. */
+.abtn__sizer { grid-area: 1 / 1; display: grid; visibility: hidden; }
+.abtn__row { grid-area: 1 / 1; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+
+/* Label layers: all in the same cell; the current one is in place, the others wait below, invisible. */
+.abtn__layer {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(85%);
+  transition: opacity var(--t-swap) var(--ease-out), transform var(--t-swap) var(--ease-emph);
+}
+.abtn[data-state="idle"] .abtn__layer--idle,
+.abtn[data-state="loading"] .abtn__layer--loading,
+.abtn[data-state="success"] .abtn__layer--success,
+.abtn[data-state="error"] .abtn__layer--error { opacity: 1; transform: none; }
+/* The layer that just left slides up and out instead of back down (reads as "moving on"). */
+.abtn:not([data-state="idle"]) .abtn__layer--idle { transform: translateY(-85%); }
+
+.abtn__icon-slot { display: inline-grid; place-items: center; width: 18px; height: 18px; }
+.abtn__icon { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+.abtn__spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2.5px solid currentColor;
+  border-right-color: transparent;
+  animation: abtn-spin 700ms linear infinite;
+}
+@keyframes abtn-spin { to { transform: rotate(1turn); } }
+
+.abtn__check { transform: scale(0.4) rotate(-20deg); transition: transform var(--t-pop) var(--ease-pop); }
+.abtn[data-state="success"] .abtn__check { transform: none; }
+
+.abtn[data-state="error"] { animation: abtn-shake var(--t-shake) ease-in-out 1; }
+@keyframes abtn-shake {
+  15% { transform: translateX(-6px); }
+  35% { transform: translateX(5px); }
+  55% { transform: translateX(-3px); }
+  75% { transform: translateX(2px); }
+  100% { transform: none; }
+}
+
+.abtn[aria-busy] { cursor: progress; }
+.abtn[aria-disabled]:not([aria-busy]) { cursor: not-allowed; }
+.abtn[aria-disabled]:not([aria-busy]) .abtn__face { opacity: 0.45; }
+
+/* Reduced motion: keep every piece of feedback (text, colour, the status announcement), drop the movement. */
+@media (prefers-reduced-motion: reduce) {
+  .abtn__face, .abtn__layer, .abtn__check { transition: opacity 120ms linear !important; transform: none !important; }
+  .abtn:not([data-state="idle"]) .abtn__layer--idle { transform: none; }
+  .abtn[data-state="error"] { animation: none; }
+  .abtn__spinner { animation: abtn-pulse 1.2s ease-in-out infinite alternate; }
+  @keyframes abtn-pulse { from { opacity: 1; } to { opacity: 0.35; } }
+}
