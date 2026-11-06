@@ -28,6 +28,20 @@ This file is read by the AI assistant (Claude) before every task. Keep it short,
 - **A feature is done** when it has a test, or for visual-only work, a written note on how it was checked. `npm test`
   and `npm run build` must both pass before a commit.
 
+## Rules learned from the FE-04 drill
+
+1. **Validation must never move the submit button between mousedown and mouseup.** Long text validates on change, not
+   on blur. On submit, errors go into a focused summary at the top. Every form gets one real-browser check (Playwright):
+   "edit the last field, then click Save **once**". This is because round 1's first click was swallowed by a
+   blur-triggered error that pushed the button down by 26 px, and jsdom tests can't see that.
+2. **Number-like fields use `type="text"` with `inputMode="decimal"` or `"numeric"`, and parse in `validate.ts`.**
+   `type="number"` turns "abc" into an empty string, so the error can't be reported. Rules live in a pure `validate.ts`
+   with its own unit tests.
+3. **The prompt states the product requirements, not just the widget.** "A settings form" got a generic profile
+   form with no persistence. Every feature prompt names the fields, limits, persistence, failure messages, and the
+   tests to write, using the round-2 prompt in `docs/ai-log/04-drill-prompts.md` as the template.
+4. **One message per field.** A counter and an error must not both say "too long".
+
 ## Workflow (explore → plan → code → verify)
 
 1. Read the files you will touch, and this file.
